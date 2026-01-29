@@ -3,6 +3,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import job from "./config/cron.js";
 
 // Config
 dotenv.config();
@@ -15,6 +16,8 @@ import rateLimiter from "./middleware/rateLimiter.js";
 
 // Initialize app
 const app = express();
+
+if (process.env.NODE_ENV === "production") job.start();
 
 // CORS Configuration for production
 const corsOptions = {
@@ -42,6 +45,9 @@ app.use(rateLimiter);
 connectDB();
 
 // Routes
+app.use("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 
